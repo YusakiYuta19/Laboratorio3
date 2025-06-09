@@ -1,0 +1,11 @@
+-- CreateTable
+CREATE TABLE `Role` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `nombre` VARCHAR(191) NOT NULL,
+    `nickname` VARCHAR(191) NOT NULL,
+    `activo` BOOLEAN NOT NULL DEFAULT true,
+    `descripcion` VARCHAR(191) NOT NULL,
+    `CreadoEn` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
