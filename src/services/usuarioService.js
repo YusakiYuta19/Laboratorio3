@@ -2,8 +2,8 @@ const bcrypt = require('bcrypt');
 const prisma = require('../config/prisma');
 
 const crearUsuario = async ({ nombre, email, password }) => {
-    const existe = await prisma.usuario.findUnique({ where: { email }});
-    if (existe) throw new Error('El Email ya esta registrado');
+    const existe = await prisma.usuario.findUnique({ where: { email } });
+    if (existe) throw new Error('El Email ya está registrado');
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -16,12 +16,11 @@ const crearUsuario = async ({ nombre, email, password }) => {
     });
 
     return usuario;
-
 };
 
-//obtener ususario
+// Obtener usuarios
 const obtenerUsuario = async () => {
-    const ususario = await prisma.usuario.findMany({
+    const usuarios = await prisma.usuario.findMany({
         select: {
             id: true,
             nombre: true,
@@ -33,18 +32,18 @@ const obtenerUsuario = async () => {
     return usuarios;
 };
 
-//eliminar usuarios
-const eliminarUsuario = async (id) =>{
-    const usuario = await prisma.usuario.findUnique({ where: {id: parseInt(id) } });
+// Eliminar usuario
+const eliminarUsuario = async (id) => {
+    const usuario = await prisma.usuario.findUnique({ where: { id: parseInt(id) } });
     if (!usuario) throw new Error('Usuario no encontrado');
 
-    await prisma.usuario.delete({where: {id: parseInt(id) } });
-    return{mensaje: 'Usuario eliminado exitosamente'};
+    await prisma.usuario.delete({ where: { id: parseInt(id) } });
+    return { mensaje: 'Usuario eliminado exitosamente' };
 };
 
-//Actualizar usuario
+// Actualizar usuario
 const actualizarUsuario = async (id, datos) => {
-    const usuario = await prisma.findUnique({ where: {id: parseInt(id) } });
+    const usuario = await prisma.usuario.findUnique({ where: { id: parseInt(id) } });
     if (!usuario) throw new Error('Usuario no encontrado');
 
     const datosActualizados = {
@@ -53,18 +52,18 @@ const actualizarUsuario = async (id, datos) => {
     };
 
     if (datos.password) {
-        const bcrypt = require('bcrypt');
         datosActualizados.password = await bcrypt.hash(datos.password, 10);
     }
 
-
     const actualizado = await prisma.usuario.update({
-        where: {id: parseInt(id)},
+        where: { id: parseInt(id) },
         data: datosActualizados,
     });
+
+    return actualizado;
 };
 
-//obtener usuario por ID
+// Obtener usuario por ID
 const obtenerUsuarioporId = async (id) => {
     const usuario = await prisma.usuario.findUnique({
         where: { id: parseInt(id) },
@@ -75,21 +74,20 @@ const obtenerUsuarioporId = async (id) => {
             createAt: true,
         },
     });
-    if (!usuario) throw new Error('usuario no encontrado');
+    if (!usuario) throw new Error('Usuario no encontrado');
+
+    return usuario;
 };
 
-const bcrypt = require('bcrypt');
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+// Login de usuario
+const loginUsuario = async (correo, contrasena) => {
+    const usuario = await prisma.usuario.findUnique({ where: { correo } });
+    if (!usuario) return null;
 
-async function loginUsuario(correo, contrasena) {
-  const usuario = await prisma.usuario.findUnique({ where: { correo } });
-  if (!usuario) return null;
+    const passwordValida = await bcrypt.compare(contrasena, usuario.contrasena);
+    if (!passwordValida) return null;
 
-  const passwordValida = await bcrypt.compare(contrasena, usuario.contrasena);
-  if (!passwordValida) return null;
-
-  return usuario;
+    return usuario;
 };
 
 module.exports = {
@@ -100,4 +98,5 @@ module.exports = {
     obtenerUsuarioporId,
     loginUsuario,
 };
+
 
